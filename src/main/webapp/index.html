@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Dear Diary Entries</title>
+<script type="text/javascript">
+function createEntry() {
+	var id = document.getElementById("entry_id").value;
+	var text = document.getElementById("entry_text").value;
+	var entry = {
+		"id": id,
+		"text": text
+	};
+	var xmlHttp = new XMLHttpRequest(); // Ajax -> making requests without reloading page
+	xmlHttp.open("POST", "/diary");
+	xmlHttp.setRequestHeader("Content-Type", "application/json");
+	xmlHttp.onreadystatechange = function() {
+		if(this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+			getEntries();
+		}
+	}
+	xmlHttp.send(JSON.stringify(entry));
+}
+function getEntries() {
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() {
+		if(this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+			var entries = JSON.parse(this.responseText);
+			renderEntries(entries);
+		}
+	}
+	xmlHttp.open("GET", "/diary", true);
+	xmlHttp.send();
+}
+function renderEntries(entries) {
+	var entry_list = document.getElementById("entry_list");
+	for(var entry of entries) {
+		var  entry_html = "<li>" + entry.text + "</li>";
+		entry_list.innerHTML = entry_list.innerHTML + entry_html;
+	}
+}
+</script>
+</head>
+<body>
+	<div>
+		<ul id="entry_list">
+		</ul>
+	</div>
+	<div>
+		<form onsubmit="return false;">
+			<label>id</label>
+			<input type="text" id="entry_id" />
+			<br />
+			<label>text</label>
+			<textarea rows="8" cols="20" id="entry_text"></textarea>
+			<button onclick="createEntry();">Add Entry</button>
+		</form>
+	</div>
+</body>
+</html>
